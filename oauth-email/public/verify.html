@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Подтверждение почты</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <div class="card">
+      <h1 class="title">Подтверждение</h1>
+      <p class="subtitle">Введите 6-значный код из письма</p>
+
+      <div id="error" class="error" hidden></div>
+      <div id="success" class="success" hidden></div>
+
+      <form id="verify-form" class="form">
+        <label class="field">
+          <span>Код подтверждения</span>
+          <input type="text" name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required>
+        </label>
+        <button type="submit" class="btn btn-primary">Подтвердить</button>
+      </form>
+
+      <button id="resend-btn" type="button" class="btn btn-secondary">Отправить код снова</button>
+
+      <p class="footer-link">
+        <a href="/register">Вернуться к регистрации</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('verify-form');
+    const resendBtn = document.getElementById('resend-btn');
+    const errorEl = document.getElementById('error');
+    const successEl = document.getElementById('success');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true;
+      successEl.hidden = true;
+
+      const data = Object.fromEntries(new FormData(form));
+
+      try {
+        const res = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          errorEl.textContent = result.error || 'Ошибка подтверждения';
+          errorEl.hidden = false;
+          return;
+        }
+
+        window.location.href = '/profile';
+      } catch {
+        errorEl.textContent = 'Ошибка сервера';
+        errorEl.hidden = false;
+      }
+    });
+
+    resendBtn.addEventListener('click', async () => {
+      errorEl.hidden = true;
+      successEl.hidden = true;
+
+      try {
+        const res = await fetch('/api/resend-code', { method: 'POST' });
+        const result = await res.json();
+
+        if (!res.ok) {
+          errorEl.textContent = result.error || 'Не удалось отправить код';
+          errorEl.hidden = false;
+          return;
+        }
+
+        successEl.textContent = 'Новый код отправлен на почту';
+        successEl.hidden = false;
+      } catch {
+        errorEl.textContent = 'Ошибка сервера';
+        errorEl.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

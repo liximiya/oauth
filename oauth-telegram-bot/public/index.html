@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход через Telegram</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <div id="error" class="error" hidden></div>
+
+    <a href="/auth/telegram" class="btn btn-telegram">
+      Авторизация через Telegram
+    </a>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+
+    if (error === 'expired') {
+      const el = document.getElementById('error');
+      el.textContent = 'Время авторизации истекло. Попробуйте снова.';
+      el.hidden = false;
+      history.replaceState({}, '', '/');
+    }
+  </script>
+</body>
+</html>

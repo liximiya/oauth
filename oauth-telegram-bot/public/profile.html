@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <div class="card profile-card">
+      <div class="avatar-wrap">
+        <img id="avatar" class="avatar" src="/default-avatar.svg" alt="Аватар">
+        <span class="status-dot"></span>
+      </div>
+
+      <h2 id="nickname" class="username">Загрузка...</h2>
+
+      <ul id="info-list" class="info-list"></ul>
+
+      <a href="/logout" class="btn btn-logout">Выйти</a>
+    </div>
+  </main>
+
+  <script>
+    function createInfoItem(label, value, iconPath) {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="icon">
+          <svg viewBox="0 0 24 24"><path d="${iconPath}"/></svg>
+        </div>
+        <div>
+          <div class="label">${label}</div>
+          <div class="value">${value}</div>
+        </div>
+      `;
+      return li;
+    }
+
+    async function loadProfile() {
+      try {
+        const res = await fetch('/api/me');
+
+        if (!res.ok) {
+          window.location.href = '/';
+          return;
+        }
+
+        const user = await res.json();
+        const list = document.getElementById('info-list');
+
+        document.getElementById('avatar').src = user.avatarUrl || '/default-avatar.svg';
+        document.getElementById('avatar').alt = user.nickname;
+        document.getElementById('nickname').textContent = user.nickname;
+
+        list.appendChild(createInfoItem(
+          'Никнейм',
+          user.nickname,
+          'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'
+        ));
+
+        if (user.username) {
+          list.appendChild(createInfoItem(
+            'Юзернейм',
+            user.username,
+            'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z'
+          ));
+        }
+
+        if (user.phone) {
+          list.appendChild(createInfoItem(
+            'Номер',
+            user.phone,
+            'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z'
+          ));
+        }
+      } catch {
+        window.location.href = '/';
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

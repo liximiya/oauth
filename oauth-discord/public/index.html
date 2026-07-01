@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход через Discord</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+      <div id="error" class="error" hidden></div>
+
+      <a href="/auth/discord" class="btn btn-discord">
+        Авторизация через Discord
+      </a>
+  </main>
+
+  <script>
+    const messages = {
+      access_denied: 'Вы отменили авторизацию.',
+      no_code: 'Не получен код авторизации.',
+      token_failed: 'Не удалось получить токен. Проверьте настройки приложения Discord.',
+      user_failed: 'Не удалось получить данные профиля.',
+      server_error: 'Ошибка сервера. Попробуйте позже.',
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+
+    if (error && messages[error]) {
+      const el = document.getElementById('error');
+      el.textContent = messages[error];
+      el.hidden = false;
+      history.replaceState({}, '', '/');
+    }
+  </script>
+</body>
+</html>

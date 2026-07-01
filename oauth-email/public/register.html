@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <div class="card">
+      <h1 class="title">Регистрация</h1>
+      <p class="subtitle">Создайте аккаунт и подтвердите почту кодом</p>
+
+      <div id="error" class="error" hidden></div>
+      <div id="success" class="success" hidden></div>
+
+      <form id="register-form" class="form">
+        <label class="field">
+          <span>Логин</span>
+          <input type="text" name="login" autocomplete="username" minlength="3" required>
+        </label>
+        <label class="field">
+          <span>Почта</span>
+          <input type="email" name="email" autocomplete="email" required>
+        </label>
+        <label class="field">
+          <span>Пароль</span>
+          <input type="password" name="password" autocomplete="new-password" minlength="6" required>
+        </label>
+        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+      </form>
+
+      <p class="footer-link">
+        Уже есть аккаунт? <a href="/">Войти</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('register-form');
+    const errorEl = document.getElementById('error');
+    const successEl = document.getElementById('success');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true;
+      successEl.hidden = true;
+
+      const data = Object.fromEntries(new FormData(form));
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          errorEl.textContent = result.error || 'Ошибка регистрации';
+          errorEl.hidden = false;
+          return;
+        }
+
+        window.location.href = '/verify';
+      } catch {
+        errorEl.textContent = 'Ошибка сервера';
+        errorEl.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

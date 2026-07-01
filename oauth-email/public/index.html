@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход через Email</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <div class="card">
+      <h1 class="title">Вход</h1>
+      <p class="subtitle">Войдите в аккаунт по логину или почте</p>
+
+      <div id="error" class="error" hidden></div>
+
+      <form id="login-form" class="form">
+        <label class="field">
+          <span>Логин или почта</span>
+          <input type="text" name="login" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span>Пароль</span>
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="btn btn-primary">Войти</button>
+      </form>
+
+      <p class="footer-link">
+        <a href="/forgot">Забыли пароль?</a>
+      </p>
+
+      <p class="footer-link">
+        Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const errorEl = document.getElementById('error');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true;
+
+      const data = Object.fromEntries(new FormData(form));
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          if (result.needVerify) {
+            window.location.href = '/verify';
+            return;
+          }
+          errorEl.textContent = result.error || 'Ошибка входа';
+          errorEl.hidden = false;
+          return;
+        }
+
+        window.location.href = '/profile';
+      } catch {
+        errorEl.textContent = 'Ошибка сервера';
+        errorEl.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>
